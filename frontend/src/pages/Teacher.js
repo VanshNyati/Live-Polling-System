@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 import { FaUserTimes } from 'react-icons/fa';
 import Chat from './Chat'; // Adjust the path as needed
 
-const socket = io('http://localhost:5000');
+const socket = io('https://intervuetask-backend.onrender.com');
 
 const TeacherPage = () => {
     const [question, setQuestion] = useState('');

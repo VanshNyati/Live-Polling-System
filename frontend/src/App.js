@@ -4,7 +4,7 @@ import io from 'socket.io-client';
 import StudentPage from './pages/Student';
 import TeacherPage from './pages/Teacher';
 
-const socket = io('http://localhost:5000');
+const socket = io('https://intervuetask-backend.onrender.com');
 
 function App() {
   const [role, setRole] = useState(null);

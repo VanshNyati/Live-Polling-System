@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import io from 'socket.io-client';
 import Chat from './Chat'; // Adjust the path as needed
 
-const socket = io('http://localhost:5000');
+const socket = io('https://intervuetask-backend.onrender.com');
 
 const StudentPage = () => {
   const [studentName, setStudentName] = useState('');
