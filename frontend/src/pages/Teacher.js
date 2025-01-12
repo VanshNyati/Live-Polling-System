@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import { FaUserTimes } from 'react-icons/fa';
-import Chat from './Chat'; // Adjust the path as needed
+import Chat from './Chat'; // Adjust the path if needed
 
 const socket = io('https://intervuetask-backend.onrender.com');
 
@@ -15,24 +15,26 @@ const TeacherPage = () => {
     const [pollActive, setPollActive] = useState(false);
 
     useEffect(() => {
+        // Retrieve connected students from sessionStorage
         const storedStudents = sessionStorage.getItem('connectedStudents');
         if (storedStudents) {
-            setStudents(JSON.parse(storedStudents)); // Re-populate connected students
+            setStudents(JSON.parse(storedStudents));
         }
 
+        // Socket listeners
         socket.on('pollEnded', (data) => {
             setPollActive(false);
-            setPollResults(data); // Update results with question and options
+            setPollResults(data);
         });
 
         socket.on('updateResults', (results) => {
-            setPollResults(results); // Update live poll results
+            setPollResults(results);
         });
 
         socket.on('studentConnected', (studentName) => {
             setStudents((prev) => {
                 const updated = [...prev, studentName];
-                sessionStorage.setItem('connectedStudents', JSON.stringify(updated)); // Persist connected students
+                sessionStorage.setItem('connectedStudents', JSON.stringify(updated));
                 return updated;
             });
         });
@@ -40,7 +42,7 @@ const TeacherPage = () => {
         socket.on('studentDisconnected', (studentName) => {
             setStudents((prev) => {
                 const updated = prev.filter((name) => name !== studentName);
-                sessionStorage.setItem('connectedStudents', JSON.stringify(updated)); // Persist connected students
+                sessionStorage.setItem('connectedStudents', JSON.stringify(updated));
                 return updated;
             });
         });
@@ -166,8 +168,8 @@ const TeacherPage = () => {
                     <button
                         type="submit"
                         className={`w-full py-3 rounded-lg text-white font-semibold transition transform ${pollActive
-                            ? 'bg-gray-400 cursor-not-allowed'
-                            : 'bg-indigo-500 hover:bg-indigo-600 hover:scale-105'
+                                ? 'bg-gray-400 cursor-not-allowed'
+                                : 'bg-indigo-500 hover:bg-indigo-600 hover:scale-105'
                             }`}
                         disabled={pollActive}
                     >

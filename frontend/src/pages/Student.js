@@ -15,6 +15,7 @@ const StudentPage = () => {
   const [kicked, setKicked] = useState(false);
 
   useEffect(() => {
+    // Retrieve student name from sessionStorage
     const storedName = sessionStorage.getItem('studentName');
     if (storedName) {
       setStudentName(storedName);
@@ -22,6 +23,7 @@ const StudentPage = () => {
       socket.emit('studentJoin', storedName); // Reconnect the student
     }
 
+    // Socket listeners
     socket.on('newQuestion', (questionData) => {
       setActiveQuestion(questionData);
       setSelectedOption(null);
@@ -35,7 +37,7 @@ const StudentPage = () => {
     });
 
     socket.on('kickNotification', () => {
-      sessionStorage.removeItem('studentName');
+      sessionStorage.removeItem('studentName'); // Clear session
       setKicked(true);
       setActiveQuestion(null);
       socket.disconnect();
@@ -73,7 +75,7 @@ const StudentPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (studentName) {
-      sessionStorage.setItem('studentName', studentName);
+      sessionStorage.setItem('studentName', studentName); // Save name in sessionStorage
       setIsNameEntered(true);
       socket.emit('studentJoin', studentName);
     }
@@ -138,8 +140,8 @@ const StudentPage = () => {
                   <label
                     key={index}
                     className={`block w-full px-4 py-3 rounded-lg border cursor-pointer ${selectedOption === index
-                      ? 'border-indigo-500 bg-indigo-50'
-                      : 'border-gray-300 hover:bg-gray-100'
+                        ? 'border-indigo-500 bg-indigo-50'
+                        : 'border-gray-300 hover:bg-gray-100'
                       }`}
                   >
                     <input
