@@ -10,10 +10,9 @@ const TeacherPage = () => {
     const [options, setOptions] = useState(['', '', '', '']);
     const [timeLimit, setTimeLimit] = useState(60);
     const [correctOption, setCorrectOption] = useState(null);
-    const [pollResults, setPollResults] = useState({});
+    const [pollResults, setPollResults] = useState(null);
     const [students, setStudents] = useState([]);
     const [pollActive, setPollActive] = useState(false);
-    const [pastPolls, setPastPolls] = useState([]); 
 
     useEffect(() => {
         socket.on('pollEnded', (data) => {
@@ -22,7 +21,7 @@ const TeacherPage = () => {
         });
 
         socket.on('updateResults', (results) => {
-            setPollResults(results);
+            setPollResults(results); // Update live poll results
         });
 
         socket.on('studentConnected', (studentName) => {
@@ -36,21 +35,6 @@ const TeacherPage = () => {
         socket.on('errorMessage', (message) => {
             alert(message);
         });
-
-        const fetchPastPolls = async () => {
-            try {
-                const response = await fetch('http://localhost:5000/api/pastPolls');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch past polls');
-                }
-                const data = await response.json();
-                setPastPolls(data);
-            } catch (error) {
-                console.error('Error fetching past polls:', error);
-            }
-        };
-
-        fetchPastPolls();
 
         return () => {
             socket.off('pollEnded');
@@ -97,124 +81,117 @@ const TeacherPage = () => {
     };
 
     return (
-        <div className="relative flex flex-col md:flex-row items-center justify-center min-h-screen bg-gray-100 p-4">
-            <div className="md:w-1/3 p-4">
-                <h3 className="text-lg font-semibold mb-2">Connected Students:</h3>
-                <ul className="bg-white p-4 rounded shadow-md">
+        <div className="grid md:grid-cols-3 gap-6 min-h-screen bg-gradient-to-br from-gray-100 via-gray-200 to-lavender-100 p-8">
+            <div className="col-span-1 bg-white text-gray-800 p-6 rounded-lg shadow-lg">
+                <h3 className="text-lg font-semibold mb-4">Connected Students</h3>
+                <ul className="space-y-3">
                     {students.map((student, index) => (
-                        <li key={index} className="border-b border-gray-300 py-2 flex justify-between items-center">
-                            {student}
+                        <li
+                            key={index}
+                            className="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm hover:bg-gray-100 transition"
+                        >
+                            <span>{student}</span>
                             <FaUserTimes
-                                className="text-red-500 cursor-pointer"
+                                className="text-red-500 cursor-pointer hover:text-red-600"
                                 onClick={() => handleKickStudent(student)}
                             />
                         </li>
                     ))}
                 </ul>
             </div>
-            <div className="md:w-2/3 p-4">
-                <h2 className="text-2xl font-bold mb-4">Create a Poll</h2>
-                <form onSubmit={handleSubmit} className="flex flex-col items-stretch w-full max-w-md">
-                    <label className="mb-2 text-lg font-semibold">Enter your question:</label>
-                    <input
-                        type="text"
-                        value={question}
-                        onChange={handleQuestionChange}
-                        placeholder="Your question here"
-                        className="border border-gray-300 rounded p-2 mb-4 w-full"
-                        required
-                    />
-                    <label className="mb-2 text-lg font-semibold">Time Limit:</label>
-                    <select
-                        value={timeLimit}
-                        onChange={(e) => setTimeLimit(Number(e.target.value))}
-                        className="border border-gray-300 rounded p-2 mb-4 w-full"
-                    >
-                        <option value={45}>45 seconds</option>
-                        <option value={60}>60 seconds</option>
-                        <option value={90}>90 seconds</option>
-                    </select>
-                    <h3 className="mb-2 text-lg font-semibold">Edit Options:</h3>
-                    {options.map((option, index) => (
-                        <div key={index} className="flex items-center mb-2">
-                            <input
-                                type="text"
-                                value={option}
-                                onChange={(e) => handleOptionChange(index, e.target.value)}
-                                placeholder={`Option ${index + 1}`}
-                                className="border border-gray-300 rounded p-2 mb-4 w-full"
-                                required
-                            />
-                            <label className="flex items-center ml-2">
+
+            <div className="col-span-2 bg-white text-gray-800 p-6 rounded-lg shadow-lg">
+                <h2 className="text-2xl font-bold mb-6">Create a Poll</h2>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div>
+                        <label className="block text-lg font-semibold mb-2">Enter your question:</label>
+                        <input
+                            type="text"
+                            value={question}
+                            onChange={handleQuestionChange}
+                            placeholder="Your question here"
+                            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500"
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-lg font-semibold mb-2">Time Limit:</label>
+                        <select
+                            value={timeLimit}
+                            onChange={(e) => setTimeLimit(Number(e.target.value))}
+                            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500"
+                        >
+                            <option value={45}>45 seconds</option>
+                            <option value={60}>60 seconds</option>
+                            <option value={90}>90 seconds</option>
+                        </select>
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-semibold mb-2">Edit Options:</h3>
+                        {options.map((option, index) => (
+                            <div key={index} className="flex items-center space-x-4 mb-4">
                                 <input
-                                    type="radio"
-                                    checked={correctOption === index}
-                                    onChange={() => handleCorrectOptionChange(index)}
-                                    className="mr-1"
+                                    type="text"
+                                    value={option}
+                                    onChange={(e) => handleOptionChange(index, e.target.value)}
+                                    placeholder={`Option ${index + 1}`}
+                                    className="flex-1 px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500"
+                                    required
                                 />
-                                Is Correct?
-                            </label>
-                        </div>
-                    ))}
+                                <label className="flex items-center space-x-2">
+                                    <input
+                                        type="radio"
+                                        checked={correctOption === index}
+                                        onChange={() => handleCorrectOptionChange(index)}
+                                        className="w-4 h-4 text-indigo-500 focus:ring-indigo-500"
+                                    />
+                                    <span>Correct?</span>
+                                </label>
+                            </div>
+                        ))}
+                    </div>
                     <button
                         type="submit"
-                        className={`${pollActive ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'
-                            } text-white font-semibold py-2 px-4 rounded shadow transition`}
+                        className={`w-full py-3 rounded-lg text-white font-semibold transition transform ${pollActive
+                            ? 'bg-gray-400 cursor-not-allowed'
+                            : 'bg-indigo-500 hover:bg-indigo-600 hover:scale-105'
+                            }`}
                         disabled={pollActive}
                     >
                         Ask Question
                     </button>
                 </form>
-                <div className="mt-4 bg-white p-4 rounded shadow-md w-full">
-                    <h3 className="text-lg font-semibold mb-4">Live Poll Results:</h3>
-                    {pollResults && pollResults.votes ? (
-                        <>
-                            <p className="font-bold mb-2">{pollResults.question}</p>
-                            <ul>
-                                {Object.entries(pollResults.votes).map(([optionIndex, count]) => {
-                                    const totalVotes = Object.values(pollResults.votes).reduce((a, b) => a + b, 0);
-                                    const percentage = ((count / totalVotes) * 100).toFixed(1);
-                                    return (
-                                        <li key={optionIndex} className="mb-2">
-                                            <div className="flex justify-between items-center">
-                                                <span>{pollResults.options[optionIndex]}:</span>
-                                                <span>{count} votes ({percentage}%)</span>
-                                            </div>
-                                            <div className="w-full bg-gray-300 h-2 rounded">
-                                                <div
-                                                    className="bg-blue-500 h-2 rounded"
-                                                    style={{ width: `${percentage}%` }}
-                                                ></div>
-                                            </div>
-                                        </li>
-                                    );
-                                })}
-                            </ul>
-                        </>
-                    ) : (
-                        <p>No votes yet.</p>
-                    )}
-                </div>
-                {/* <div className="mt-4">
-                    <h3 className="text-lg font-semibold">Past Poll Results:</h3>
-                    {pastPolls.length > 0 ? (
-                        pastPolls.map((poll, index) => (
-                            <div key={index} className="bg-white p-4 rounded shadow-md mb-4">
-                                <h4 className="font-bold">{poll.question}</h4>
-                                <ul>
-                                    {poll.options.map((option, idx) => (
-                                        <li key={idx}>
-                                            {option}: {poll.results[idx] || 0} votes
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        ))
-                    ) : (
-                        <p>No past polls available.</p>
-                    )}
-                </div> */}
+
+                {pollResults && pollResults.votes && (
+                    <div className="mt-8 bg-white text-gray-800 p-6 rounded-lg shadow-lg">
+                        <h3 className="text-xl font-semibold mb-4">Live Poll Results</h3>
+                        <p className="font-bold mb-4">{pollResults.question}</p>
+                        <ul>
+                            {Object.entries(pollResults.votes).map(([index, count]) => {
+                                const totalVotes = Object.values(pollResults.votes).reduce((a, b) => a + b, 0);
+                                const percentage = ((count / totalVotes) * 100).toFixed(1);
+                                return (
+                                    <li key={index} className="mb-4">
+                                        <div className="flex justify-between items-center">
+                                            <span>{pollResults.options[index]}:</span>
+                                            <span>
+                                                {count} votes ({percentage}%)
+                                            </span>
+                                        </div>
+                                        <div className="w-full bg-gray-300 h-2 rounded">
+                                            <div
+                                                className="bg-indigo-500 h-2 rounded"
+                                                style={{ width: `${percentage}%` }}
+                                            ></div>
+                                        </div>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    </div>
+                )}
             </div>
+
             <Chat senderName="Teacher" />
         </div>
     );

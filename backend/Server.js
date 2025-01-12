@@ -68,13 +68,29 @@ io.on('connection', (socket) => {
         );
 
         if (targetSocket) {
+            // Notify the student they were kicked
             targetSocket.emit('kickNotification');
-            targetSocket.disconnect(true); // Disconnect student
+
+            // Disconnect the student
+            setTimeout(() => {
+                targetSocket.disconnect(true); // Disconnect after the notification
+            }, 100);
         }
 
+        // Remove the student from the list
         connectedStudents = connectedStudents.filter((name) => name !== studentName);
         io.emit('studentDisconnected', studentName);
         console.log('Student kicked:', studentName);
+    });
+
+    socket.on('sendMessage', (data) => {
+        const { senderName, message } = data;
+
+        // Attach timestamp to the message
+        const time = new Date().toLocaleTimeString();
+
+        // Broadcast the message to all connected clients
+        io.emit('receiveMessage', { senderName, message, time });
     });
 
     socket.on('disconnect', () => {
