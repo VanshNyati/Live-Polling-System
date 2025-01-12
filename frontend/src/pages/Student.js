@@ -19,10 +19,7 @@ const StudentPage = () => {
     if (storedName) {
       setStudentName(storedName);
       setIsNameEntered(true);
-    }
-
-    if (isNameEntered) {
-      socket.emit('studentJoin', studentName);
+      socket.emit('studentJoin', storedName); // Reconnect the student
     }
 
     socket.on('newQuestion', (questionData) => {
@@ -54,7 +51,7 @@ const StudentPage = () => {
       socket.off('kickNotification');
       socket.off('pollEnded');
     };
-  }, [isNameEntered, studentName]);
+  }, []);
 
   const startTimer = () => {
     const countdown = setInterval(() => {
@@ -200,7 +197,7 @@ const StudentPage = () => {
           )}
         </div>
       )}
-      {isNameEntered && !kicked && <Chat senderName={studentName} />}
+      {isNameEntered && <Chat senderName={studentName} />}
     </div>
   );
 };

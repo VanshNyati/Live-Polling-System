@@ -15,6 +15,11 @@ const TeacherPage = () => {
     const [pollActive, setPollActive] = useState(false);
 
     useEffect(() => {
+        const storedStudents = sessionStorage.getItem('connectedStudents');
+        if (storedStudents) {
+            setStudents(JSON.parse(storedStudents)); // Re-populate connected students
+        }
+
         socket.on('pollEnded', (data) => {
             setPollActive(false);
             setPollResults(data); // Update results with question and options
@@ -25,11 +30,19 @@ const TeacherPage = () => {
         });
 
         socket.on('studentConnected', (studentName) => {
-            setStudents((prev) => [...prev, studentName]);
+            setStudents((prev) => {
+                const updated = [...prev, studentName];
+                sessionStorage.setItem('connectedStudents', JSON.stringify(updated)); // Persist connected students
+                return updated;
+            });
         });
 
         socket.on('studentDisconnected', (studentName) => {
-            setStudents((prev) => prev.filter((name) => name !== studentName));
+            setStudents((prev) => {
+                const updated = prev.filter((name) => name !== studentName);
+                sessionStorage.setItem('connectedStudents', JSON.stringify(updated)); // Persist connected students
+                return updated;
+            });
         });
 
         socket.on('errorMessage', (message) => {

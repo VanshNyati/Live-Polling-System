@@ -7,22 +7,13 @@ import TeacherPage from './pages/Teacher';
 const socket = io('https://intervuetask-backend.onrender.com');
 
 function App() {
-  const [role, setRole] = useState(null);
+  const [role, setRole] = useState(() => sessionStorage.getItem('role') || null);
 
   useEffect(() => {
-    socket.on('connect', () => {
-      console.log('Connected to server');
-    });
-
-    socket.on('disconnect', () => {
-      console.log('Disconnected from server');
-    });
-
-    return () => {
-      socket.off('connect');
-      socket.off('disconnect');
-    };
-  }, []);
+    if (role) {
+      sessionStorage.setItem('role', role); // Save role in sessionStorage
+    }
+  }, [role]);
 
   const handleRoleSelection = (selectedRole) => {
     setRole(selectedRole);
@@ -40,9 +31,7 @@ function App() {
                   <h1 className="text-5xl font-extrabold tracking-tight text-gray-800">
                     Welcome to the <span className="text-indigo-500">Live Polling System</span>
                   </h1>
-                  <p className="text-lg text-gray-600">
-                    Select your role to get started!
-                  </p>
+                  <p className="text-lg text-gray-600">Select your role to get started!</p>
                   <div className="flex justify-center space-x-8">
                     <button
                       onClick={() => handleRoleSelection('student')}
